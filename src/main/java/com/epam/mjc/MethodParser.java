@@ -1,5 +1,10 @@
 package com.epam.mjc;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
+
 public class MethodParser {
 
     /**
@@ -20,6 +25,31 @@ public class MethodParser {
      * @return {@link MethodSignature} object filled with parsed values from source string
      */
     public MethodSignature parseFunction(String signatureString) {
-        throw new UnsupportedOperationException("You should implement this method.");
+        List<MethodSignature.Argument> arguments = new ArrayList<>();
+        var arr = signatureString.split("\\(");
+        String accessModifier = null;
+        String outerSignature = arr[0];
+        var outerSignatureArr = outerSignature.split(" ");
+        int index = 0;
+        if (outerSignature.startsWith("private") || outerSignature.startsWith("public") || outerSignature.startsWith("protected")) {
+            index = 1;
+            accessModifier = outerSignatureArr[0];
+        }
+        String returnType = outerSignatureArr[index];
+        String methodName = outerSignatureArr[index + 1];
+
+        String innerSignature = arr[1].substring(0, arr[1].length() - 1);
+        var tokenizer = new StringTokenizer(innerSignature, ", ");
+        while (tokenizer.hasMoreTokens()) {
+            var type = tokenizer.nextToken();
+            var name = tokenizer.nextToken();
+            arguments.add(new MethodSignature.Argument(type, name));
+        }
+        var result = new MethodSignature(methodName, arguments);
+        if (accessModifier != null) {
+            result.setAccessModifier(accessModifier);
+        }
+        result.setReturnType(returnType);
+        return result;
     }
 }
